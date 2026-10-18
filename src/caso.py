@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+from estados import Rescatado
+
 
 class Animal(ABC):
     def __init__(self, nombre="Sin nombre"):
@@ -37,8 +39,19 @@ class Caso:
         self.descripcion = descripcion
         self.animal = animal
         self.foto = foto
-        self.estado = None            # lo define la rama feature/state-estados
+        self.estado = Rescatado()
         self.responsable = None
         self.alta_medica = False
         self.adopcion_aprobada = False
         self.historial = []
+
+    def nombre_estado(self):
+        return type(self.estado).__name__
+
+    def avanzar(self, usuario="sistema"):
+        """Delega en el estado actual y registra la transición (REQ-N04)."""
+        anterior = self.nombre_estado()
+        self.estado.avanzar(self)
+        nuevo = self.nombre_estado()
+        if anterior != nuevo:
+            self.historial.append((datetime.now(), usuario, anterior, nuevo))
